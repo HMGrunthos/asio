@@ -33,7 +33,7 @@ namespace detail {
 struct signal_state
 {
   // Mutex used for protecting global state.
-  static_mutex mutex_;
+  static_mutex &mutex_;
 
   // The read end of the pipe used for signal notifications.
   int read_descriptor_;
@@ -51,10 +51,12 @@ struct signal_state
   std::size_t registration_count_[max_signal_number];
 };
 
+static static_mutex stateMutex(ASIO_STATIC_MUTEX_INIT);
+
 signal_state* get_signal_state()
 {
-  static signal_state state = {
-    ASIO_STATIC_MUTEX_INIT, -1, -1, false, 0, { 0 } };
+	static signal_state state = {
+		stateMutex, -1, -1, false, 0, { 0 } };
   return &state;
 }
 

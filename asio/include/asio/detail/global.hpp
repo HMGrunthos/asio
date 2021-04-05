@@ -21,6 +21,8 @@
 # include "asio/detail/null_global.hpp"
 #elif defined(ASIO_WINDOWS)
 # include "asio/detail/win_global.hpp"
+#elif defined(ASIO_FREERTOS)
+# include "asio/detail/freertos_global.hpp"
 #elif defined(ASIO_HAS_PTHREADS)
 # include "asio/detail/posix_global.hpp"
 #elif defined(ASIO_HAS_STD_CALL_ONCE)
@@ -39,6 +41,8 @@ inline T& global()
   return null_global<T>();
 #elif defined(ASIO_WINDOWS)
   return win_global<T>();
+#elif defined(ASIO_FREERTOS)
+  return null_global<T>();
 #elif defined(ASIO_HAS_PTHREADS)
   return posix_global<T>();
 #elif defined(ASIO_HAS_STD_CALL_ONCE)

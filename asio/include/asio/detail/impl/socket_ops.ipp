@@ -609,7 +609,7 @@ bool non_blocking_connect(socket_type s, asio::error_code& ec)
 int socketpair(int af, int type, int protocol,
     socket_type sv[2], asio::error_code& ec)
 {
-#if defined(ASIO_WINDOWS) || defined(__CYGWIN__)
+#if defined(ASIO_WINDOWS) || defined(__CYGWIN__) || defined(ASIO_FREERTOS)
   (void)(af);
   (void)(type);
   (void)(protocol);
@@ -3277,10 +3277,14 @@ inline asio::error_code translate_addrinfo_error(int error)
   {
   case 0:
     return asio::error_code();
+#ifdef EAI_AGAIN
   case EAI_AGAIN:
     return asio::error::host_not_found_try_again;
+#endif
+#ifdef EAI_BADFLAGS
   case EAI_BADFLAGS:
     return asio::error::invalid_argument;
+#endif
   case EAI_FAIL:
     return asio::error::no_recovery;
   case EAI_FAMILY:
@@ -3297,8 +3301,10 @@ inline asio::error_code translate_addrinfo_error(int error)
     return asio::error::host_not_found;
   case EAI_SERVICE:
     return asio::error::service_not_found;
+#if defined(EAI_SOCKTYPE)
   case EAI_SOCKTYPE:
     return asio::error::socket_type_not_supported;
+#endif
   default: // Possibly the non-portable EAI_SYSTEM.
 #if defined(ASIO_WINDOWS) || defined(__CYGWIN__)
     return asio::error_code(
@@ -3415,6 +3421,44 @@ void freeaddrinfo(addrinfo_type* ai)
 #endif
 }
 
+#if defined(ASIO_LWIP_SOCKETS)
+
+#if !defined(NI_NUMERICHOST)
+	#define NI_NUMERICHOST 0x02
+#endif
+
+#if !defined(NI_NUMERICSERV)
+	#define NI_NUMERICSERV 0x08
+#endif
+
+#if !defined(NI_DGRAM)
+	#define NI_DGRAM 0x10
+#endif
+
+int getnameinfo_lwip(const struct sockaddr *sa, socklen_t salen, char *host, size_t hostlen, char *serv, size_t servlen, int flags)
+{
+	const struct sockaddr_in *sinp = (const struct sockaddr_in *) sa;
+	
+	switch (sa->sa_family) {
+		case AF_INET:
+			if (flags & NI_NUMERICHOST) {
+				if (inet_ntop (AF_INET, &sinp->sin_addr, host, hostlen) == NULL) {
+					return EAI_MEMORY;
+				}
+			}
+			if (flags & NI_NUMERICSERV) {
+				if (snprintf(serv, servlen, "%d", ntohs (sinp->sin_port)) < 0) {
+					return EAI_MEMORY;
+				}
+			}
+			break;
+	}
+	
+	return 0;
+}
+
+#endif // ASIO_LWIP_SOCKETS
+
 asio::error_code getnameinfo(const socket_addr_type* addr,
     std::size_t addrlen, char* host, std::size_t hostlen,
     char* serv, std::size_t servlen, int flags, asio::error_code& ec)
@@ -3446,6 +3490,10 @@ asio::error_code getnameinfo(const socket_addr_type* addr,
   return getnameinfo_emulation(addr, addrlen,
       host, hostlen, serv, servlen, flags, ec);
 # endif
+#elif defined(ASIO_LWIP_SOCKETS)
+  clear_last_error();
+  int error = socket_ops::getnameinfo_lwip(addr, addrlen, host, hostlen, serv, servlen, flags);
+  return ec = translate_addrinfo_error(error);
 #elif !defined(ASIO_HAS_GETADDRINFO)
   using namespace std; // For memcpy.
   sockaddr_storage_type tmp_addr;

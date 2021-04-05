@@ -1303,6 +1303,8 @@
 #   define ASIO_HAS_PTHREADS 1
 #  elif defined(__HAIKU__)
 #   define ASIO_HAS_PTHREADS 1
+#  elif defined(ASIO_FREERTOS)
+#   define ASIO_HAS_PTHREADS 1
 #  endif // defined(ASIO_HAS_BOOST_CONFIG) && defined(BOOST_HAS_PTHREADS)
 # endif // defined(ASIO_HAS_THREADS)
 #endif // !defined(ASIO_HAS_PTHREADS)

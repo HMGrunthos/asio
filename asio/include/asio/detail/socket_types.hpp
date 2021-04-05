@@ -55,6 +55,13 @@
 #  endif // defined(_MSC_VER) || defined(__BORLANDC__)
 # endif // !defined(ASIO_NO_DEFAULT_LINKED_LIBS)
 # include "asio/detail/old_win_sdk_compat.hpp"
+#elif defined(ASIO_LWIP_SOCKETS)
+# include <net/if.h>
+# include <sys/socket.h>
+# include <netdb.h>
+# define NI_MAXHOST 256
+# define NI_MAXSERV 32
+
 #else
 # include <sys/ioctl.h>
 # if (defined(__MACH__) && defined(__APPLE__)) \
@@ -311,7 +318,7 @@ typedef in6_addr in6_addr_type;
 typedef ipv6_mreq in6_mreq_type;
 typedef sockaddr_in6 sockaddr_in6_type;
 typedef sockaddr_storage sockaddr_storage_type;
-typedef sockaddr_un sockaddr_un_type;
+//typedef sockaddr_un sockaddr_un_type;
 typedef addrinfo addrinfo_type;
 typedef ::linger linger_type;
 typedef int ioctl_arg_type;

@@ -69,10 +69,12 @@ public:
       message_peek = ASIO_OS_DEF(MSG_PEEK));
   ASIO_STATIC_CONSTANT(int,
       message_out_of_band = ASIO_OS_DEF(MSG_OOB));
+#if !defined(ASIO_LWIP_SOCKETS)
   ASIO_STATIC_CONSTANT(int,
       message_do_not_route = ASIO_OS_DEF(MSG_DONTROUTE));
   ASIO_STATIC_CONSTANT(int,
       message_end_of_record = ASIO_OS_DEF(MSG_EOR));
+#endif
 #endif
 
   /// Wait types.
@@ -530,8 +532,14 @@ public:
 #if defined(GENERATING_DOCUMENTATION)
   static const int max_listen_connections = implementation_defined;
 #else
+#if defined(ASIO_LWIP_SOCKETS)
+  ASIO_STATIC_CONSTANT(int, max_listen_connections
+      = MEMP_NUM_TCP_PCB_LISTEN);
+  #define SOMAXCONN MEMP_NUM_TCP_PCB_LISTEN
+#else
   ASIO_STATIC_CONSTANT(int, max_listen_connections
       = ASIO_OS_DEF(SOMAXCONN));
+#endif
 #endif
 
 #if !defined(ASIO_NO_DEPRECATED)
@@ -540,8 +548,14 @@ public:
 #if defined(GENERATING_DOCUMENTATION)
   static const int max_connections = implementation_defined;
 #else
+#if defined(ASIO_LWIP_SOCKETS)
+  ASIO_STATIC_CONSTANT(int, max_connections
+      = MEMP_NUM_TCP_PCB_LISTEN);
+  #define SOMAXCONN MEMP_NUM_TCP_PCB_LISTEN
+#else
   ASIO_STATIC_CONSTANT(int, max_connections
       = ASIO_OS_DEF(SOMAXCONN));
+#endif
 #endif
 #endif // !defined(ASIO_NO_DEPRECATED)
 

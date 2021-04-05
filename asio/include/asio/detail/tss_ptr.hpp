@@ -23,6 +23,8 @@
 # include "asio/detail/keyword_tss_ptr.hpp"
 #elif defined(ASIO_WINDOWS)
 # include "asio/detail/win_tss_ptr.hpp"
+#elif defined(ASIO_FREERTOS)
+# include "asio/detail/freertos_tss_ptr.hpp"
 #elif defined(ASIO_HAS_PTHREADS)
 # include "asio/detail/posix_tss_ptr.hpp"
 #else
@@ -42,6 +44,8 @@ class tss_ptr
   : public keyword_tss_ptr<T>
 #elif defined(ASIO_WINDOWS)
   : public win_tss_ptr<T>
+#elif defined(ASIO_FREERTOS)
+  : public null_tss_ptr<T>
 #elif defined(ASIO_HAS_PTHREADS)
   : public posix_tss_ptr<T>
 #endif
@@ -55,6 +59,8 @@ public:
     keyword_tss_ptr<T>::operator=(value);
 #elif defined(ASIO_WINDOWS)
     win_tss_ptr<T>::operator=(value);
+#elif defined(ASIO_FREERTOS)
+    null_tss_ptr<T>::operator=(value);
 #elif defined(ASIO_HAS_PTHREADS)
     posix_tss_ptr<T>::operator=(value);
 #endif

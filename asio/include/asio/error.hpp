@@ -22,6 +22,8 @@
   || defined(__CYGWIN__) \
   || defined(ASIO_WINDOWS_RUNTIME)
 # include <winerror.h>
+#elif defined(ASIO_LWIP_SOCKETS)
+# include <netdb.h>
 #else
 # include <cerrno>
 # include <netdb.h>
@@ -205,7 +207,7 @@ enum addrinfo_errors
   /// The socket type is not supported.
   socket_type_not_supported = ASIO_WIN_OR_POSIX(
       ASIO_NATIVE_ERROR(WSAESOCKTNOSUPPORT),
-      ASIO_GETADDRINFO_ERROR(EAI_SOCKTYPE))
+      ASIO_GETADDRINFO_ERROR(EAI_FAMILY))
 };
 
 enum misc_errors
