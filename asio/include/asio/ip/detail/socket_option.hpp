@@ -162,7 +162,8 @@ private:
 };
 
 // Helper template for implementing unicast hops options.
-template <int IPv4_Level, int IPv4_Name, int IPv6_Level, int IPv6_Name>
+template <int IPv4_Level, int IPv4_Name>
+//template <int IPv4_Level, int IPv4_Name, int IPv6_Level, int IPv6_Name>
 class unicast_hops
 {
 public:
@@ -195,8 +196,8 @@ public:
   template <typename Protocol>
   int level(const Protocol& protocol) const
   {
-    if (protocol.family() == PF_INET6)
-      return IPv6_Level;
+//    if (protocol.family() == PF_INET6)
+//      return IPv6_Level;
     return IPv4_Level;
   }
 
@@ -204,8 +205,8 @@ public:
   template <typename Protocol>
   int name(const Protocol& protocol) const
   {
-    if (protocol.family() == PF_INET6)
-      return IPv6_Name;
+//    if (protocol.family() == PF_INET6)
+//      return IPv6_Name;
     return IPv4_Name;
   }
 
