@@ -315,8 +315,8 @@ typedef ip_mreq in4_mreq_type;
 # endif
 typedef sockaddr_in sockaddr_in4_type;
 typedef in6_addr in6_addr_type;
-typedef ipv6_mreq in6_mreq_type;
-typedef sockaddr_in6 sockaddr_in6_type;
+// typedef ipv6_mreq in6_mreq_type;
+// typedef sockaddr_in6 sockaddr_in6_type;
 typedef sockaddr_storage sockaddr_storage_type;
 //typedef sockaddr_un sockaddr_un_type;
 typedef addrinfo addrinfo_type;

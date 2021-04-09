@@ -22,7 +22,7 @@
 #include "asio/detail/type_traits.hpp"
 #include "asio/error_code.hpp"
 #include "asio/ip/address_v4.hpp"
-#include "asio/ip/address_v6.hpp"
+// #include "asio/ip/address_v6.hpp"
 #include "asio/ip/bad_address_cast.hpp"
 
 #if !defined(ASIO_NO_IOSTREAM)
@@ -54,8 +54,8 @@ public:
       const asio::ip::address_v4& ipv4_address) ASIO_NOEXCEPT;
 
   /// Construct an address from an IPv6 address.
-  ASIO_DECL address(
-      const asio::ip::address_v6& ipv6_address) ASIO_NOEXCEPT;
+//  ASIO_DECL address(
+//      const asio::ip::address_v6& ipv6_address) ASIO_NOEXCEPT;
 
   /// Copy constructor.
   ASIO_DECL address(const address& other) ASIO_NOEXCEPT;
@@ -78,8 +78,8 @@ public:
       const asio::ip::address_v4& ipv4_address) ASIO_NOEXCEPT;
 
   /// Assign from an IPv6 address.
-  ASIO_DECL address& operator=(
-      const asio::ip::address_v6& ipv6_address) ASIO_NOEXCEPT;
+//  ASIO_DECL address& operator=(
+//      const asio::ip::address_v6& ipv6_address) ASIO_NOEXCEPT;
 
   /// Get whether the address is an IP version 4 address.
   bool is_v4() const ASIO_NOEXCEPT
@@ -97,7 +97,7 @@ public:
   ASIO_DECL asio::ip::address_v4 to_v4() const;
 
   /// Get the address as an IP version 6 address.
-  ASIO_DECL asio::ip::address_v6 to_v6() const;
+//  ASIO_DECL asio::ip::address_v6 to_v6() const;
 
   /// Get the address as a string.
   ASIO_DECL std::string to_string() const;
@@ -181,7 +181,7 @@ private:
   asio::ip::address_v4 ipv4_address_;
 
   // The underlying IPv6 address.
-  asio::ip::address_v6 ipv6_address_;
+  // asio::ip::address_v6 ipv6_address_;
 };
 
 /// Create an address from an IPv4 address string in dotted decimal form,

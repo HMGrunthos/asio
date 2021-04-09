@@ -51,14 +51,14 @@ public:
     return icmp(ASIO_OS_DEF(IPPROTO_ICMP),
         ASIO_OS_DEF(AF_INET));
   }
-
+/*
   /// Construct to represent the IPv6 ICMP protocol.
   static icmp v6() ASIO_NOEXCEPT
   {
     return icmp(ASIO_OS_DEF(IPPROTO_ICMPV6),
         ASIO_OS_DEF(AF_INET6));
   }
-
+*/
   /// Obtain an identifier for the type of the protocol.
   int type() const ASIO_NOEXCEPT
   {

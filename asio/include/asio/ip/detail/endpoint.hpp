@@ -71,10 +71,13 @@ public:
   // Get the underlying size of the endpoint in the native type.
   std::size_t size() const ASIO_NOEXCEPT
   {
+    return sizeof(asio::detail::sockaddr_in4_type);
+/*
     if (is_v4())
       return sizeof(asio::detail::sockaddr_in4_type);
     else
       return sizeof(asio::detail::sockaddr_in6_type);
+*/
   }
 
   // Set the underlying size of the endpoint in the native type.
@@ -124,7 +127,7 @@ private:
   {
     asio::detail::socket_addr_type base;
     asio::detail::sockaddr_in4_type v4;
-    asio::detail::sockaddr_in6_type v6;
+    // asio::detail::sockaddr_in6_type v6;
   } data_;
 };
 

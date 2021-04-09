@@ -385,16 +385,25 @@ class multicast_request
 public:
   // Default constructor.
   multicast_request()
-    : ipv4_value_(), // Zero-initialisation gives the "any" address.
-      ipv6_value_() // Zero-initialisation gives the "any" address.
+    : ipv4_value_() // Zero-initialisation gives the "any" address.
+//    : ipv4_value_(), // Zero-initialisation gives the "any" address.
+//      ipv6_value_() // Zero-initialisation gives the "any" address.
   {
   }
 
   // Construct with multicast address only.
   explicit multicast_request(const address& multicast_address)
-    : ipv4_value_(), // Zero-initialisation gives the "any" address.
-      ipv6_value_() // Zero-initialisation gives the "any" address.
+    : ipv4_value_() // Zero-initialisation gives the "any" address.
+//    : ipv4_value_(), // Zero-initialisation gives the "any" address.
+//      ipv6_value_() // Zero-initialisation gives the "any" address.
   {
+    ipv4_value_.imr_multiaddr.s_addr =
+      asio::detail::socket_ops::host_to_network_long(
+          multicast_address.to_v4().to_uint());
+    ipv4_value_.imr_interface.s_addr =
+      asio::detail::socket_ops::host_to_network_long(
+          address_v4::any().to_uint());
+/*
     if (multicast_address.is_v6())
     {
       using namespace std; // For memcpy.
@@ -412,12 +421,13 @@ public:
         asio::detail::socket_ops::host_to_network_long(
             address_v4::any().to_uint());
     }
+*/
   }
 
   // Construct with multicast address and IPv4 address specifying an interface.
   explicit multicast_request(const address_v4& multicast_address,
       const address_v4& network_interface = address_v4::any())
-    : ipv6_value_() // Zero-initialisation gives the "any" address.
+//    : ipv6_value_() // Zero-initialisation gives the "any" address.
   {
     ipv4_value_.imr_multiaddr.s_addr =
       asio::detail::socket_ops::host_to_network_long(
@@ -426,7 +436,7 @@ public:
       asio::detail::socket_ops::host_to_network_long(
           network_interface.to_uint());
   }
-
+/*
   // Construct with multicast address and IPv6 network interface index.
   explicit multicast_request(
       const address_v6& multicast_address,
@@ -441,7 +451,7 @@ public:
     else
       ipv6_value_.ipv6mr_interface = multicast_address.scope_id();
   }
-
+*/
   // Get the level of the socket option.
   template <typename Protocol>
   int level(const Protocol& protocol) const
@@ -464,8 +474,8 @@ public:
   template <typename Protocol>
   const void* data(const Protocol& protocol) const
   {
-    if (protocol.family() == PF_INET6)
-      return &ipv6_value_;
+//    if (protocol.family() == PF_INET6)
+//      return &ipv6_value_;
     return &ipv4_value_;
   }
 
@@ -473,14 +483,14 @@ public:
   template <typename Protocol>
   std::size_t size(const Protocol& protocol) const
   {
-    if (protocol.family() == PF_INET6)
-      return sizeof(ipv6_value_);
+//    if (protocol.family() == PF_INET6)
+//      return sizeof(ipv6_value_);
     return sizeof(ipv4_value_);
   }
 
 private:
   asio::detail::in4_mreq_type ipv4_value_;
-  asio::detail::in6_mreq_type ipv6_value_;
+  // asio::detail::in6_mreq_type ipv6_value_;
 };
 
 // Helper template for implementing options that specify a network interface.

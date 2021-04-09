@@ -43,6 +43,11 @@ endpoint::endpoint(int family, unsigned short port_num) ASIO_NOEXCEPT
   : data_()
 {
   using namespace std; // For memcpy.
+  data_.v4.sin_family = ASIO_OS_DEF(AF_INET);
+  data_.v4.sin_port =
+    asio::detail::socket_ops::host_to_network_short(port_num);
+  data_.v4.sin_addr.s_addr = ASIO_OS_DEF(INADDR_ANY);
+/*  using namespace std; // For memcpy.
   if (family == ASIO_OS_DEF(AF_INET))
   {
     data_.v4.sin_family = ASIO_OS_DEF(AF_INET);
@@ -66,6 +71,7 @@ endpoint::endpoint(int family, unsigned short port_num) ASIO_NOEXCEPT
     data_.v6.sin6_addr.s6_addr[14] = 0; data_.v6.sin6_addr.s6_addr[15] = 0;
     data_.v6.sin6_scope_id = 0;
   }
+*/
 }
 
 endpoint::endpoint(const asio::ip::address& addr,
@@ -73,6 +79,13 @@ endpoint::endpoint(const asio::ip::address& addr,
   : data_()
 {
   using namespace std; // For memcpy.
+  data_.v4.sin_family = ASIO_OS_DEF(AF_INET);
+  data_.v4.sin_port =
+    asio::detail::socket_ops::host_to_network_short(port_num);
+  data_.v4.sin_addr.s_addr =
+    asio::detail::socket_ops::host_to_network_long(
+      addr.to_v4().to_uint());
+/*
   if (addr.is_v4())
   {
     data_.v4.sin_family = ASIO_OS_DEF(AF_INET);
@@ -95,6 +108,7 @@ endpoint::endpoint(const asio::ip::address& addr,
       static_cast<asio::detail::u_long_type>(
         v6_addr.scope_id());
   }
+*/
 }
 
 void endpoint::resize(std::size_t new_size)
@@ -108,6 +122,9 @@ void endpoint::resize(std::size_t new_size)
 
 unsigned short endpoint::port() const ASIO_NOEXCEPT
 {
+  return asio::detail::socket_ops::network_to_host_short(
+      data_.v4.sin_port);
+/*
   if (is_v4())
   {
     return asio::detail::socket_ops::network_to_host_short(
@@ -118,10 +135,14 @@ unsigned short endpoint::port() const ASIO_NOEXCEPT
     return asio::detail::socket_ops::network_to_host_short(
         data_.v6.sin6_port);
   }
+*/
 }
 
 void endpoint::port(unsigned short port_num) ASIO_NOEXCEPT
 {
+  data_.v4.sin_port
+    = asio::detail::socket_ops::host_to_network_short(port_num);
+/*
   if (is_v4())
   {
     data_.v4.sin_port
@@ -132,11 +153,16 @@ void endpoint::port(unsigned short port_num) ASIO_NOEXCEPT
     data_.v6.sin6_port
       = asio::detail::socket_ops::host_to_network_short(port_num);
   }
+*/
 }
 
 asio::ip::address endpoint::address() const ASIO_NOEXCEPT
 {
   using namespace std; // For memcpy.
+  return asio::ip::address_v4(
+      asio::detail::socket_ops::network_to_host_long(
+        data_.v4.sin_addr.s_addr));
+/*
   if (is_v4())
   {
     return asio::ip::address_v4(
@@ -153,6 +179,7 @@ asio::ip::address endpoint::address() const ASIO_NOEXCEPT
 #endif // defined(ASIO_HAS_STD_ARRAY)
     return asio::ip::address_v6(bytes, data_.v6.sin6_scope_id);
   }
+*/
 }
 
 void endpoint::address(const asio::ip::address& addr) ASIO_NOEXCEPT
