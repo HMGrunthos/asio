@@ -42,6 +42,8 @@ void null_event::do_wait()
   std::this_thread::sleep_until((std::chrono::steady_clock::time_point::max)());
 #elif defined(ASIO_WINDOWS) || defined(__CYGWIN__)
   ::Sleep(INFINITE);
+#elif defined(ASIO_FREERTOS)
+	vTaskDelay(UINT32_MAX);
 #else
   ::pause();
 #endif
@@ -58,6 +60,8 @@ void null_event::do_wait_for_usec(long usec)
   ts.tv_sec = usec / 1000000;
   ts.tv_nsec = (usec % 1000000) * 1000;
   ::pselect(0, 0, 0, 0, &ts, 0);
+#elif defined(ASIO_FREERTOS)
+	vTaskDelay(pdMS_TO_TICKS(usec/1000));
 #else
   timeval tv;
   tv.tv_sec = usec / 1000000;
