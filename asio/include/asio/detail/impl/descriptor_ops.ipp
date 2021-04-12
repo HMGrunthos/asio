@@ -29,7 +29,7 @@
 namespace asio {
 namespace detail {
 namespace descriptor_ops {
-
+/*
 int open(const char* path, int flags, asio::error_code& ec)
 {
   errno = 0;
@@ -38,7 +38,7 @@ int open(const char* path, int flags, asio::error_code& ec)
     ec = asio::error_code();
   return result;
 }
-
+*/
 int close(int d, state_type& state, asio::error_code& ec)
 {
   int result = 0;

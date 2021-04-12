@@ -21,7 +21,8 @@
 
 #if defined(ASIO_WINDOWS) \
   || defined(__CYGWIN__) \
-  || defined(__SYMBIAN32__)
+  || defined(__SYMBIAN32__) \
+  || defined(ASIO_LWIP_SOCKETS)
 
 #include "asio/detail/socket_types.hpp"
 

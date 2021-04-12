@@ -21,9 +21,11 @@
 
 #if defined(ASIO_WINDOWS) \
   || defined(__CYGWIN__) \
-  || defined(__SYMBIAN32__)
+  || defined(__SYMBIAN32__) \
+  || defined(ASIO_LWIP_SOCKETS)
 
 #include <cstdlib>
+#include "asio/socket_base.hpp"
 #include "asio/detail/socket_holder.hpp"
 #include "asio/detail/socket_ops.hpp"
 #include "asio/detail/socket_select_interrupter.hpp"
