@@ -3435,7 +3435,7 @@ void freeaddrinfo(addrinfo_type* ai)
 	#define NI_DGRAM 0x10
 #endif
 
-int getnameinfo_lwip(const struct sockaddr *sa, socklen_t salen, char *host, size_t hostlen, char *serv, size_t servlen, int flags)
+static int getnameinfo_lwip(const struct sockaddr *sa, socklen_t salen, char *host, size_t hostlen, char *serv, size_t servlen, int flags)
 {
 	const struct sockaddr_in *sinp = (const struct sockaddr_in *) sa;
 	
