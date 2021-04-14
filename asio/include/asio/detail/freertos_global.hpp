@@ -23,32 +23,38 @@ namespace asio {
 namespace detail {
 
 template <typename T>
-struct null_global_impl
+struct freertos_global_impl
 {
-  null_global_impl()
+  freertos_global_impl()
     : ptr_(0)
   {
   }
 
   // Destructor automatically cleans up the global.
-  ~null_global_impl()
+  ~freertos_global_impl()
   {
     delete ptr_;
   }
 
-  static null_global_impl instance_;
+  static freertos_global_impl instance_;
+  static std::mutex mutex_;
   T* ptr_;
 };
 
-template <typename T>
-null_global_impl<T> null_global_impl<T>::instance_;
+template <typename T> freertos_global_impl<T> freertos_global_impl<T>::instance_;
+
+template <typename T> std::mutex freertos_global_impl<T>::mutex_;
 
 template <typename T>
-T& null_global()
+T& freertos_global()
 {
-  if (null_global_impl<T>::instance_.ptr_ == 0)
-    null_global_impl<T>::instance_.ptr_ = new T;
-  return *null_global_impl<T>::instance_.ptr_;
+  {
+    freertos_global_impl<T>::mutex_.lock();
+      if (freertos_global_impl<T>::instance_.ptr_ == 0)
+        freertos_global_impl<T>::instance_.ptr_ = new T;
+    freertos_global_impl<T>::mutex_.unlock();
+  }
+  return *freertos_global_impl<T>::instance_.ptr_;
 }
 
 } // namespace detail

@@ -42,7 +42,7 @@ inline T& global()
 #elif defined(ASIO_WINDOWS)
   return win_global<T>();
 #elif defined(ASIO_FREERTOS)
-  return null_global<T>();
+  return freertos_global<T>();
 #elif defined(ASIO_HAS_PTHREADS)
   return posix_global<T>();
 #elif defined(ASIO_HAS_STD_CALL_ONCE)
