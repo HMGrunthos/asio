@@ -45,7 +45,7 @@ class tss_ptr
 #elif defined(ASIO_WINDOWS)
   : public win_tss_ptr<T>
 #elif defined(ASIO_FREERTOS)
-  : public null_tss_ptr<T>
+  : public freertos_tss_ptr<T>
 #elif defined(ASIO_HAS_PTHREADS)
   : public posix_tss_ptr<T>
 #endif
@@ -60,7 +60,7 @@ public:
 #elif defined(ASIO_WINDOWS)
     win_tss_ptr<T>::operator=(value);
 #elif defined(ASIO_FREERTOS)
-    null_tss_ptr<T>::operator=(value);
+    freertos_tss_ptr<T>::operator=(value);
 #elif defined(ASIO_HAS_PTHREADS)
     posix_tss_ptr<T>::operator=(value);
 #endif

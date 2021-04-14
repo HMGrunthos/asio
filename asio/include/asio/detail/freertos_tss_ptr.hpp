@@ -1,5 +1,5 @@
 //
-// detail/null_tss_ptr.hpp
+// detail/freertos_tss_ptr.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~
 //
 // Copyright (c) 2003-2019 Christopher M. Kohlhoff (chris at kohlhoff dot com)
@@ -19,6 +19,9 @@
 
 #if defined(ASIO_FREERTOS)
 
+#include "asio/detail/throw_error.hpp"
+#include "asio/error.hpp"
+
 #include "asio/detail/noncopyable.hpp"
 
 #include "asio/detail/push_options.hpp"
@@ -27,35 +30,43 @@ namespace asio {
 namespace detail {
 
 template <typename T>
-class null_tss_ptr
+class freertos_tss_ptr
   : private noncopyable
 {
 public:
   // Constructor.
-  null_tss_ptr()
-    : value_(0)
-  {
+  freertos_tss_ptr() {
+    // Note: Yes, I checked that FreeRTOS initialises the thread local pointers
+    // Find a free index in our pointer list
+    for(ptrIdx = 0; ptrIdx < configNUM_THREAD_LOCAL_STORAGE_POINTERS; ptrIdx++) {
+      T *tssPtrVal = (T*)*this;
+      if(tssPtrVal == NULL) {
+        this->operator=((T*)!NULL);
+        return;
+      }
+    }
+    // Throw an error if there are no free indicies
+    asio::error_code ec(0xDEADBEEF, asio::error::get_system_category());
+    asio::detail::throw_error(ec, "tss");
   }
 
   // Destructor.
-  ~null_tss_ptr()
-  {
+  ~freertos_tss_ptr() {
+    *this = NULL;
   }
 
   // Get the value.
-  operator T*() const
-  {
-    return value_;
+  operator T*() const {
+    return (T*)pvTaskGetThreadLocalStoragePointer(NULL, ptrIdx);
   }
 
   // Set the value.
-  void operator=(T* value)
-  {
-    value_ = value;
+  void operator=(T* value) {
+    vTaskSetThreadLocalStoragePointer(NULL, ptrIdx, (void*)value);
   }
 
 private:
-  T* value_;
+  BaseType_t ptrIdx; // Index into the thread local pointer array
 };
 
 } // namespace detail
