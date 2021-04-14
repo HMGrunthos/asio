@@ -36,12 +36,18 @@ class freertos_tss_ptr
 public:
   // Constructor.
   freertos_tss_ptr() {
+    bool *usedPtrIdxs = (bool*)pvTaskGetThreadLocalStoragePointer(NULL, 0);
     // Note: Yes, I checked that FreeRTOS initialises the thread local pointers
+    if(usedPtrIdxs == NULL) {
+      usedPtrIdxs = new bool[configNUM_THREAD_LOCAL_STORAGE_POINTERS - 1];
+      memset(usedPtrIdxs, 0, sizeof(bool)*(configNUM_THREAD_LOCAL_STORAGE_POINTERS - 1));
+      vTaskSetThreadLocalStoragePointer(NULL, 0, (void*)usedPtrIdxs);
+    }
+
     // Find a free index in our pointer list
-    for(ptrIdx = 0; ptrIdx < configNUM_THREAD_LOCAL_STORAGE_POINTERS; ptrIdx++) {
-      T *tssPtrVal = (T*)*this;
-      if(tssPtrVal == NULL) {
-        this->operator=((T*)!NULL);
+    for(ptrIdx = 1; ptrIdx < configNUM_THREAD_LOCAL_STORAGE_POINTERS; ptrIdx++) {
+      if(usedPtrIdxs[ptrIdx - 1] == false) { // Check in the used list - this is numbered from 0 to configNUM_THREAD_LOCAL_STORAGE_POINTERS-2
+        usedPtrIdxs[ptrIdx - 1] = true;
         return;
       }
     }
@@ -57,6 +63,7 @@ public:
 
   // Get the value.
   operator T*() const {
+    // The actual TLS pointers used by this class run from 1 to configNUM_THREAD_LOCAL_STORAGE_POINTERS-1
     return (T*)pvTaskGetThreadLocalStoragePointer(NULL, ptrIdx);
   }
 
