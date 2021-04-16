@@ -36,18 +36,20 @@ class freertos_tss_ptr
 public:
   // Constructor.
   freertos_tss_ptr() {
-    bool *usedPtrIdxs = (bool*)pvTaskGetThreadLocalStoragePointer(NULL, 0);
+    const size_t usedIdxTLSOffset = ((size_t)free_rtos_std::gthr_freertos::eEvStoragePos) + 1;
+    const size_t nTLSPtrs = configNUM_THREAD_LOCAL_STORAGE_POINTERS - (usedIdxTLSOffset + 1);
+    bool *usedPtrIdxs = (bool*)pvTaskGetThreadLocalStoragePointer(NULL, (BaseType_t)usedIdxTLSOffset);
     // Note: Yes, I checked that FreeRTOS initialises the thread local pointers
     if(usedPtrIdxs == NULL) {
-      usedPtrIdxs = new bool[configNUM_THREAD_LOCAL_STORAGE_POINTERS - 1];
-      memset(usedPtrIdxs, 0, sizeof(bool)*(configNUM_THREAD_LOCAL_STORAGE_POINTERS - 1));
-      vTaskSetThreadLocalStoragePointer(NULL, 0, (void*)usedPtrIdxs);
+      usedPtrIdxs = new bool[nTLSPtrs];
+      memset(usedPtrIdxs, 0, sizeof(bool)*nTLSPtrs);
+      vTaskSetThreadLocalStoragePointer(NULL, usedIdxTLSOffset, (void*)usedPtrIdxs);
     }
 
     // Find a free index in our pointer list
-    for(ptrIdx = 1; ptrIdx < configNUM_THREAD_LOCAL_STORAGE_POINTERS; ptrIdx++) {
-      if(usedPtrIdxs[ptrIdx - 1] == false) { // Check in the used list - this is numbered from 0 to configNUM_THREAD_LOCAL_STORAGE_POINTERS-2
-        usedPtrIdxs[ptrIdx - 1] = true;
+    for(ptrIdx = usedIdxTLSOffset + 1; ptrIdx < configNUM_THREAD_LOCAL_STORAGE_POINTERS; ptrIdx++) {
+      if(usedPtrIdxs[ptrIdx - (usedIdxTLSOffset + 1)] == false) { // Check in the used list - this is numbered from 0 to configNUM_THREAD_LOCAL_STORAGE_POINTERS-2
+        usedPtrIdxs[ptrIdx - (usedIdxTLSOffset + 1)] = true;
         return;
       }
     }
