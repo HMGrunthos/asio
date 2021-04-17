@@ -29,25 +29,28 @@
 namespace asio {
 namespace detail {
 
-static const size_t firstTLSOffset = ((size_t)free_rtos_std::gthr_freertos::eEvStoragePos) + 1;
-static const size_t nTLSPtrs = configNUM_THREAD_LOCAL_STORAGE_POINTERS - firstTLSOffset;
-static bool usedPtrIdxsSTORAGE[nTLSPtrs];
+class freertos_TSSKeyIndex {
+  public:
+    static const size_t FIRSTTLSOFFSET = ((size_t)free_rtos_std::gthr_freertos::eEvStoragePos) + 1;
+  private:
+    static const size_t NTLSPTRS = configNUM_THREAD_LOCAL_STORAGE_POINTERS - FIRSTTLSOFFSET;
+  public:
+    static bool usedIdxs[NTLSPTRS];
+};
 
 template <typename T>
 class freertos_tss_ptr
-  : private noncopyable
+  : private noncopyable, freertos_TSSKeyIndex
 {
+private:
+  BaseType_t ptrIdx; // Index into the thread local pointer array
+
 public:
-  // Constructor.
   freertos_tss_ptr() {
-    if(usedPtrIdxs == NULL) {
-      usedPtrIdxs = usedPtrIdxsSTORAGE;
-      memset(usedPtrIdxs, 0, sizeof(bool)*nTLSPtrs);
-    }
     // Find a free index in our pointer list
-    for(ptrIdx = firstTLSOffset; ptrIdx < configNUM_THREAD_LOCAL_STORAGE_POINTERS; ptrIdx++) {
-      if(usedPtrIdxs[ptrIdx - firstTLSOffset] == false) { // Check in the used list - this is numbered from 0 to configNUM_THREAD_LOCAL_STORAGE_POINTERS-2
-        usedPtrIdxs[ptrIdx - firstTLSOffset] = true;
+    for(ptrIdx = FIRSTTLSOFFSET; ptrIdx < configNUM_THREAD_LOCAL_STORAGE_POINTERS; ptrIdx++) {
+      if(usedIdxs[ptrIdx - FIRSTTLSOFFSET] == false) { // Check in the used list - this is numbered from 0 to configNUM_THREAD_LOCAL_STORAGE_POINTERS-2
+        usedIdxs[ptrIdx - FIRSTTLSOFFSET] = true;
         return;
       }
     }
@@ -71,10 +74,6 @@ public:
   void operator=(T* value) {
     vTaskSetThreadLocalStoragePointer(NULL, ptrIdx, (void*)value);
   }
-
-private:
-  BaseType_t ptrIdx; // Index into the thread local pointer array
-  static bool *usedPtrIdxs;
 };
 
 } // namespace detail

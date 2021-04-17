@@ -27,7 +27,7 @@
 
 namespace asio {
   namespace detail {
-    template <typename T> bool *freertos_tss_ptr<T>::usedPtrIdxs = NULL;
+    bool freertos_TSSKeyIndex::usedIdxs[NTLSPTRS];
   } // namespace detail
 } // namespace asio
 
