@@ -29,6 +29,10 @@
 namespace asio {
 namespace detail {
 
+static const size_t firstTLSOffset = ((size_t)free_rtos_std::gthr_freertos::eEvStoragePos) + 1;
+static const size_t nTLSPtrs = configNUM_THREAD_LOCAL_STORAGE_POINTERS - firstTLSOffset;
+static bool usedPtrIdxsSTORAGE[nTLSPtrs];
+
 template <typename T>
 class freertos_tss_ptr
   : private noncopyable
@@ -36,20 +40,14 @@ class freertos_tss_ptr
 public:
   // Constructor.
   freertos_tss_ptr() {
-    const size_t usedIdxTLSOffset = ((size_t)free_rtos_std::gthr_freertos::eEvStoragePos) + 1;
-    const size_t nTLSPtrs = configNUM_THREAD_LOCAL_STORAGE_POINTERS - (usedIdxTLSOffset + 1);
-    bool *usedPtrIdxs = (bool*)pvTaskGetThreadLocalStoragePointer(NULL, (BaseType_t)usedIdxTLSOffset);
-    // Note: Yes, I checked that FreeRTOS initialises the thread local pointers
     if(usedPtrIdxs == NULL) {
-      usedPtrIdxs = new bool[nTLSPtrs];
+      usedPtrIdxs = usedPtrIdxsSTORAGE;
       memset(usedPtrIdxs, 0, sizeof(bool)*nTLSPtrs);
-      vTaskSetThreadLocalStoragePointer(NULL, usedIdxTLSOffset, (void*)usedPtrIdxs);
     }
-
     // Find a free index in our pointer list
-    for(ptrIdx = usedIdxTLSOffset + 1; ptrIdx < configNUM_THREAD_LOCAL_STORAGE_POINTERS; ptrIdx++) {
-      if(usedPtrIdxs[ptrIdx - (usedIdxTLSOffset + 1)] == false) { // Check in the used list - this is numbered from 0 to configNUM_THREAD_LOCAL_STORAGE_POINTERS-2
-        usedPtrIdxs[ptrIdx - (usedIdxTLSOffset + 1)] = true;
+    for(ptrIdx = firstTLSOffset; ptrIdx < configNUM_THREAD_LOCAL_STORAGE_POINTERS; ptrIdx++) {
+      if(usedPtrIdxs[ptrIdx - firstTLSOffset] == false) { // Check in the used list - this is numbered from 0 to configNUM_THREAD_LOCAL_STORAGE_POINTERS-2
+        usedPtrIdxs[ptrIdx - firstTLSOffset] = true;
         return;
       }
     }
@@ -76,12 +74,17 @@ public:
 
 private:
   BaseType_t ptrIdx; // Index into the thread local pointer array
+  static bool *usedPtrIdxs;
 };
 
 } // namespace detail
 } // namespace asio
 
 #include "asio/detail/pop_options.hpp"
+
+#if defined(ASIO_HEADER_ONLY)
+# include "asio/detail/impl/freertos_tss_ptr.ipp"
+#endif // defined(ASIO_HEADER_ONLY)
 
 #endif // !defined(ASIO_FREERTOS)
 
