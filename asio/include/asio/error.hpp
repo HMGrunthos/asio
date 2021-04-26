@@ -168,7 +168,7 @@ enum basic_errors
   operation_not_supported = ASIO_SOCKET_ERROR(EOPNOTSUPP),
 
   /// Cannot send after transport endpoint shutdown.
-  shut_down = ASIO_SOCKET_ERROR(ESHUTDOWN),
+  // shut_down = ASIO_SOCKET_ERROR(ESHUTDOWN),
 
   /// Connection timed out.
   timed_out = ASIO_SOCKET_ERROR(ETIMEDOUT),
